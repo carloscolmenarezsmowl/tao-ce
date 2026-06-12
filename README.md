@@ -1,5 +1,8 @@
 # TAO Community Edition 
 
+> [!IMPORTANT]
+> **Smowltech**: este fork incluye la integración de SMOWL como herramienta de proctoring externo vía LTI 1.3, lista para usar. Para montar el entorno TAO+SMOWL en tu EC2, sigue la guía **[ONBOARDING.md](./ONBOARDING.md)** — los cambios de configuración del repo ya están hechos; solo necesitas configurar tu máquina.
+
 <a href="https://www.taotesting.com/">
 <img src="https://www.taotesting.com/wp-content/uploads/2013/03/TAO_cmyk_NewRED-e1563201301764.png" alt="TAO logo" title="TAO" align="right" height="60" />
 </a>
