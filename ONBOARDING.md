@@ -159,6 +159,8 @@ docker exec tao-ce-tao-1 systemctl restart \
 
 ## 5. Alta de la plataforma TAO en la herramienta SMOWL
 
+> ✅ **Si usas el snapshot de BD que compartimos, este paso ya está hecho**: la plataforma **TAO LOCAL** viene dada de alta en la herramienta LTI con estos datos. No hace falta crearla ni modificarla — la tabla siguiente queda solo como referencia (o para montar el alta desde cero sin el snapshot).
+
 En el manager de la herramienta LTI, registra la plataforma con estos datos:
 
 | Campo | Valor |
