@@ -6,11 +6,20 @@ services:
       - source: tao_config
         target: /etc/tao-ce/config/tao.yaml
         mode: 0644
+      - source: caddyfile
+        target: /etc/tao-ce/config/Caddyfile
+        mode: 0644
+      - source: environments
+        target: /usr/local/libexec/tao-ce/setup/apps/files/environments.libsonnet
+        mode: 0644
+      - source: sidecar_config
+        target: /opt/tao-ce/environment-management/sidecar/config.yaml
+        mode: 0644
     image: quay.io/tao-ce/tao-ce:${TAO_CE_VERSION:-latest}
     extra_hosts:
     - ${TAO_CE_PUBLIC_DOMAIN:-community.tao.internal}:0.0.0.0
     ports:
-      - 443:443
+      - 8443:443
     cgroup: host
     volumes:
     - /sys/fs/cgroup:/sys/fs/cgroup:rw
@@ -29,6 +38,12 @@ services:
 
 
 configs:
+  caddyfile:
+    file: ./Caddyfile.local
+  environments:
+    file: ./environments.libsonnet.local
+  sidecar_config:
+    file: ./sidecar-config.yaml.local
   tao_config:
     content: |
       spec:

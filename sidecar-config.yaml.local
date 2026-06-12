@@ -1,0 +1,175 @@
+log_level: trace
+hostname: localhost
+admin:
+  http_port: 8011
+  grpc_port: 18083
+sidecar:
+  http_port: 8009
+  grpc_port: 18084
+  public_key_path: /app/keys/public.pem
+  private_key_path: /app/keys/private.pem
+  private_key_passphrase: ~
+  cookie_ttl: 48
+  unused_token_id_max_count: 20
+  request_timeout_seconds: 15 
+  max_idle_connections: 1000  
+  max_idle_connections_per_host: 100
+  idle_connection_timeout_seconds: 90
+  disable_keep_alives: false   
+  max_connections_per_host: 200
+  envoy_filter:
+    jwks_url: ~
+    lti_handler_url: ~
+    token_url: ~
+    refresh_token_uri: ~
+    frontend_url: ~
+    auth_server_url: http://localhost:3000
+    request_header_tenant: OAT-TENANT-ID
+    request_header_prefix: OAT-CUSTOM-
+    whitelisted_paths:
+      - /.well-known/jwks.json
+      - /lti1p3/.well-known/jwks/platformSet.json
+      - /lti1p3/.well-known/jwks/:keyset
+      - /lti1p3/oidc/authentication
+      - /lti1p3/oidc/initiation
+      - /api/v1/assessments/start
+      #
+      # control center login
+      - /api/v1/login
+
+      #
+      # control center login
+      - /api/v1/login
+
+      #
+      # auth server offline-vm endpoints
+      - /auth-server/.well-known/jwks.json
+      - /auth-server/v1/oauth2/tokens
+      - /auth-server/v1/sso/callback
+      - /auth-server/v1/lti/platform/message/launch/lti-resource-link
+      - /auth-server/v1/lti/validate-platform-launch
+
+      #
+      # socket connection servers
+      - /socket.io
+      - /timers/socket.io
+      - /synchronizer/socket.io
+      - /pr-realtime-socket/socket.io
+      - /task-orchestrator-socket/socket.io
+
+
+      # portal endpoints
+      - /api/v1/configuration
+      - /api/v1/emails/subscriptions/cancel
+      - /api/v1/emails/verify
+      - /api/v1/sessions/public
+      - /api/v1/lti/launch-public-delivery-execution
+      - /api/v1/health
+
+      # portal for offline-vm
+      - /portal-be/api/v1/configuration
+      - /portal-be/api/v1/emails/subscriptions/cancel
+      - /portal-be/api/v1/emails/verify
+      - /portal-be/api/v1/sessions/public
+      - /portal-be/api/v1/lti/launch-public-delivery-execution
+      - /portal-be/api/v1/health
+
+      # deliver endpoints
+      - /api/v1/asset
+      - /api/v1/attachments
+      - /api/v1/csv
+      - /api/v1/download-asset
+
+      # deliver endpoints with /deliver path prefix (for offline-vm)
+      - /deliver/api/v1/asset
+      - /deliver/api/v1/attachments
+      - /deliver/api/v1/csv
+      - /deliver/api/v1/download-asset
+      - /deliver/lti1p3/oidc/authentication
+
+      - /docs
+      - /health
+      - /health-check
+      - /swagger.json
+      - /socket.io
+      - /v1/oauth2/tokens
+      - /v1/sso/callback
+      - /v1/lti/platform/message/launch/lti-resource-link
+      - /v1/lti/validate-platform-launch
+
+      # webhooks
+      - /api/v1/payments/payment-gateways/webhook
+
+tenant_data_preloader:
+  source_path: ./resources/example_tenant_data.json
+cache:
+  account_prefix: /acc
+  account_collection_prefix: /accs
+  environment_prefix: /env
+  environment_collection_prefix: /envs
+  instance_prefix: /ins
+  instance_collection_prefix: /inss
+  tenant_prefix: /tnt
+  tenant_collection_prefix: /tnts
+ff:
+  enable_admin_http: ~
+  enable_admin_http_account_api: ~
+  enable_admin_http_environment_api: ~
+  enable_admin_http_instance_api: ~
+  enable_admin_http_tenant_api: ~
+  enable_admin_grpc: ~
+  enable_admin_grpc_account_service: ~
+  enable_admin_grpc_environment_service: ~
+  enable_admin_grpc_instance_service: ~
+  enable_admin_grpc_tenant_service: ~
+  enable_sidecar_http: ~
+  enable_sidecar_http_config_api: ~
+  enable_sidecar_http_feature_flag_api: ~
+  enable_sidecar_http_lti_api: ~
+  enable_sidecar_http_oauth2_api: ~
+  enable_sidecar_grpc: ~
+  enable_sidecar_grpc_config_service: ~
+  enable_sidecar_grpc_feature_flag_service: ~
+  enable_sidecar_grpc_lti_service: ~
+  enable_sidecar_grpc_oauth2_service: ~
+  enable_sidecar_grpc_envoy_feature_flag_filter: ~
+  enable_offline_mode: ~
+etcd:
+  host: http://localhost:3379
+  key_naming:
+    prefix: /envmgmt
+    watcher_prefix: /w
+    account_meta_prefix: /acc/meta/
+    account_feature_flag_prefix: /acc/ff/
+    account_config_prefix: /acc/config/
+    account_lti_platform_prefix: /acc/lti/plat/
+    account_lti_tool_prefix: /acc/lti/tool/
+    account_lti_registration_prefix: /acc/lti/reg/
+    account_oauth2_client_prefix: /acc/oauth2/
+    environment_meta_prefix: /env/meta/
+    environment_feature_flag_prefix: /env/ff/
+    environment_config_prefix: /env/cfg/
+    environment_lti_platform_prefix: /env/lti/plat/
+    environment_lti_tool_prefix: /env/lti/tool/
+    environment_lti_registration_prefix: /env/lti/reg/
+    environment_oauth2_client_prefix: /env/oauth2/
+    tenant_meta_prefix: /tnt/meta/
+    tenant_feature_flag_prefix: /tnt/ff/
+    tenant_config_prefix: /tnt/cfg/
+    tenant_lti_platform_prefix: /tnt/lti/plat/
+    tenant_lti_tool_prefix: /tnt/lti/tool/
+    tenant_lti_registration_prefix: /tnt/lti/reg/
+    tenant_oauth2_client_prefix: /tnt/oauth2/
+    instance_meta_prefix: /ins/meta/
+    refresh_token_prefix: /refresh-token/
+    lti_claim_prefix: /lti-claim/
+redis:
+  address: http://localhost:3379
+  db: 0
+  key_naming:
+    prefix: envmgmt
+    refresh_token: refresh-token
+    lti_claim: lti-claim
+  cluster_enabled: false
+namespace: ~
+env: ~
