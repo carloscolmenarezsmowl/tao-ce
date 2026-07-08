@@ -96,8 +96,12 @@ sudo a2enconf header-limits
 
         # upgrade=websocket: el test runner usa WebSockets (timers)
         # responsefieldsize: las redirecciones LTI llevan cabeceras Location >10KB
-        ProxyPass        / https://127.0.0.1:8443/ upgrade=websocket responsefieldsize=65536
-        ProxyPassReverse / https://127.0.0.1:8443/
+        # OJO: usa el hostname, NO 127.0.0.1 — Caddy (tls internal) solo tiene
+        # certificado para el SNI "tao-local.smowltech.net"; conectando por IP
+        # literal Apache no envía ese SNI y el handshake TLS falla. El hostname
+        # resuelve a la propia máquina vía el /etc/hosts del §2.
+        ProxyPass        / https://tao-local.smowltech.net:8443/ upgrade=websocket responsefieldsize=65536
+        ProxyPassReverse / https://tao-local.smowltech.net:8443/
 
         Timeout 305
 </VirtualHost>
@@ -204,6 +208,8 @@ docker exec tao-ce-tao-1 sh -c 'curl -s -X POST "http://es:9200/portal-enrolment
 
 | Síntoma | Causa | Solución |
 |---|---|---|
+| 502 "Proxy Error... Reason: DNS lookup failure for: community.tao.internal" | El `ProxyPass`/`ProxyPassReverse` del vhost apunta al dominio genérico de `INSTALL.md` en vez del backend real | Usa el backend de §3.2 (`tao-local.smowltech.net:8443`, no `community.tao.internal`) |
+| 502 "Proxy Error... Reason: Error during SSL Handshake with remote server" | `ProxyPass` apunta a `https://127.0.0.1:8443/`: Apache no envía SNI al conectar por IP literal y Caddy (`tls internal`) rechaza el handshake porque no coincide con su certificado | Usa el hostname (`tao-local.smowltech.net:8443`) en el `ProxyPass`, no la IP (§3.2) |
 | "Client sent an HTTP request to an HTTPS server" | Apache proxifica con `http://` al backend TLS | `ProxyPass https://` + `SSLProxyEngine on` (§3.2) |
 | Puerto 8443 no responde (HTTP 000) | Caddy en bucle ACME por dominio sin DNS público | Verifica que `Caddyfile.local` está montado (ya viene en el repo) |
 | "Unexpected error happened during the test" + WS fallan en consola | Apache no tuneliza WebSockets | `upgrade=websocket` en ProxyPass (§3.2) |
