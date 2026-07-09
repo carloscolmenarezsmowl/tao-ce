@@ -84,6 +84,13 @@ sudo a2enconf header-limits
         Header always set Strict-Transport-Security "max-age=15768000; includeSubDomains"
 
         ProxyRequests Off
+        # Sin esto Apache manda a Caddy el Host del propio ProxyPass
+        # ("tao-local.smowltech.net:8443") en vez del que mandó el navegador.
+        # Envoy (detrás de Caddy) solo tiene registrado el virtual host SIN
+        # puerto: con el Host equivocado no matchea nada y da 404 en blanco
+        # en /portal-be/*, /deliver/*, /backoffice/*, /ms-be/*, /ss-be/* — el
+        # login carga (lo sirve Caddy directo) pero todas sus llamadas a la
+        # API fallan con "Unexpected error happened".
         ProxyPreserveHost On
         ProxyVia On
 
@@ -213,6 +220,7 @@ docker exec tao-ce-tao-1 sh -c 'curl -s -X POST "http://es:9200/portal-enrolment
 | "Client sent an HTTP request to an HTTPS server" | Apache proxifica con `http://` al backend TLS | `ProxyPass https://` + `SSLProxyEngine on` (§3.2) |
 | Puerto 8443 no responde (HTTP 000) | Caddy en bucle ACME por dominio sin DNS público | Verifica que `Caddyfile.local` está montado (ya viene en el repo) |
 | "Unexpected error happened during the test" + WS fallan en consola | Apache no tuneliza WebSockets | `upgrade=websocket` en ProxyPass (§3.2) |
+| "Unexpected error happened" justo tras el login (no durante el test); `/portal-be/*`, `/deliver/*`, `/backoffice/*`, `/ms-be/*`, `/ss-be/*` dan 404 en blanco con cabecera `Server: envoy` | `ProxyPreserveHost` a `Off` (o ausente): Apache manda a Caddy el `Host` del `ProxyPass` (`tao-local.smowltech.net:8443`) en vez del del cliente; Envoy solo tiene el virtual host sin puerto y no matchea | `ProxyPreserveHost On` en el vhost (§3.2) |
 | 400 "Size of a request header field exceeds server limit" | Cookies JWT >8KB y límites en el vhost (no aplican) | `header-limits.conf` **global** (§3.1) |
 | 502 "invalid response from upstream" en `/lti/login` | `Location` de ~10,7KB supera el buffer del proxy | `responsefieldsize=65536` (§3.3) |
 | 400 `INVALID_CONFIG` "Parameters 'iss' and 'client_id' are required" | Auth Login URL apuntando al auth-server | Usar el endpoint de `/deliver/` (§5) |
@@ -232,4 +240,6 @@ docker exec tao-ce-tao-1 journalctl --no-pager | grep audit_delivery_execution |
 docker exec tao-ce-tao-1 curl -s "http://localhost:21101/api/v1/lti-registrations?platformIssuer=https%3A%2F%2Ftao-local.smowltech.net%2Fportal-be&clientId=smowl-proctoring-client-id"
 # Logs de la herramienta LTI de SMOWL
 docker logs lti-lti-1 --tail 50
+# Host que le llega a Caddy (¿trae puerto de más? -> ProxyPreserveHost, ver tabla arriba)
+docker exec tao-ce-tao-1 journalctl -u tao-ce.static.service --since "-2 min" --no-pager | grep -o '"host":"[^"]*"' | tail
 ```
